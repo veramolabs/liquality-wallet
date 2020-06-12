@@ -10,16 +10,21 @@ const PENDING_STATES = [
   'READY_TO_SEND'
 ]
 
+const PENDING_LOAN_STATES = [
+  'WAIT_FOR_WITHDRAW'
+]
+
 export const checkPendingSwaps = async ({ state, dispatch }) => {
   Object.keys(NetworkAssets).forEach(network => {
     if (!state.history[network]) return
 
     Object.keys(state.history[network]).forEach(walletId => {
-      state.history[network][walletId].forEach(order => {
-        if (order.type !== 'SWAP') return
-
-        if (PENDING_STATES.includes(order.status)) {
-          dispatch('performNextAction', { network, walletId, id: order.id })
+      state.history[network][walletId].forEach(item => {
+        if (item.type === 'SWAP' && PENDING_STATES.includes(item.status)) {
+          dispatch('performNextAction', { network, walletId, id: item.id })
+        }
+        if (item.type === 'LOAN' && PENDING_LOAN_STATES.includes(item.status)) {
+          dispatch('performNextLoanAction', { network, walletId, id: item.id })
         }
       })
     })

@@ -1,4 +1,7 @@
 import Client from '@liquality/client'
+import LoanClient from '@atomicloans/loan-client'
+import BitcoinCollateralProvider from '@atomicloans/bitcoin-collateral-provider'
+import BitcoinCollateralSwapProvider from '@atomicloans/bitcoin-collateral-swap-provider'
 
 import BitcoinSwapProvider from '@liquality/bitcoin-swap-provider'
 import BitcoinJsWalletProvider from '@liquality/bitcoin-js-wallet-provider'
@@ -17,6 +20,9 @@ import EthereumErc20ScraperSwapFindProvider from '@liquality/ethereum-erc20-scra
 import BitcoinNetworks from '@liquality/bitcoin-networks'
 import EthereumNetworks from '@liquality/ethereum-networks'
 
+import Web3 from 'web3'
+import { generateAddressesFromSeed } from '../utils'
+
 const rpc = {
   BTC: {
     bitcoin: ['https://blockstream.info/api', 2],
@@ -24,14 +30,17 @@ const rpc = {
   },
   ETH: {
     mainnet: ['https://mainnet.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
-    rinkeby: ['https://rinkeby.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
+    rinkeby: ['https://rinkeby.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
+    kovan: ['https://kovan.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
   },
   DAI: {
     mainnet: ['https://mainnet.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
-    rinkeby: ['https://rinkeby.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
+    rinkeby: ['https://rinkeby.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
+    kovan: ['https://kovan.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
   },
   USDC: {
-    mainnet: ['https://mainnet.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
+    mainnet: ['https://mainnet.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
+    kovan: ['https://kovan.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f']
   }
 }
 
@@ -70,13 +79,23 @@ const AdditionalSwapProviders = {
   USDC: EthereumErc20ScraperSwapFindProvider
 }
 
+const CollateralProviders = {
+  BTC: BitcoinCollateralProvider
+}
+
+const CollateralSwapProviders = {
+  BTC: BitcoinCollateralSwapProvider
+}
+
 const ERC20 = {
   DAI: {
     mainnet: '0x6b175474e89094c44da98b954eedeac495271d0f',
-    rinkeby: '0xcE2748BE67fB4346654B4500c4BB0642536365FC'
+    rinkeby: '0xcE2748BE67fB4346654B4500c4BB0642536365FC',
+    kovan: '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'
   },
   USDC: {
-    mainnet: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+    mainnet: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    kovan: '0x75b0622cec14130172eae9cf166b92e5c112faff'
   }
 }
 
@@ -85,14 +104,19 @@ export const NetworkAssets = {
   testnet: ['BTC', 'ETH', 'DAI']
 }
 
-export const createClient = (network, mnemonic) => {
+const shouldInjectWeb3 = (asset) => asset === 'ETH' || ERC20[asset]
+const cachedWeb3Instances = {
+
+}
+
+const createClient = (network, mnemonic) => {
   const isTestnet = network === 'testnet'
 
   const NetworkArgs = {
     BTC: isTestnet ? 'bitcoin_testnet' : 'bitcoin',
-    ETH: isTestnet ? 'rinkeby' : 'mainnet',
-    DAI: isTestnet ? 'rinkeby' : 'mainnet',
-    USDC: isTestnet ? 'rinkeby' : 'mainnet'
+    ETH: isTestnet ? 'kovan' : 'mainnet',
+    DAI: isTestnet ? 'kovan' : 'mainnet',
+    USDC: isTestnet ? 'kovan' : 'mainnet'
   }
 
   const SwapArgs = {
@@ -100,6 +124,10 @@ export const createClient = (network, mnemonic) => {
     ETH: [],
     DAI: [],
     USDC: []
+  }
+
+  const CollateralSwapArgs = {
+    BTC: [{ network: networks.BTC[NetworkArgs.BTC] }]
   }
 
   const AdditionalSwapArgs = {
@@ -133,6 +161,32 @@ export const createClient = (network, mnemonic) => {
       ...AdditionalSwapArgs[asset]
     ))
 
+    client.loan = new LoanClient(client)
+
+    if (CollateralProviders[asset]) {
+      client.addProvider(new CollateralProviders[asset](
+        ...CollateralSwapArgs[asset]
+      ))
+
+      client.addProvider(new CollateralSwapProviders[asset](
+        ...CollateralSwapArgs[asset]
+      ))
+    }
+
+    if (shouldInjectWeb3(asset)) {
+      const cachedWeb3 = cachedWeb3Instances[network]
+      if (cachedWeb3) {
+        client.web3 = cachedWeb3Instances[network]
+      } else {
+        const web3 = new Web3(new Web3.providers.HttpProvider(...rpc[asset][NetworkArgs[asset]]))
+        const { privateKey } = generateAddressesFromSeed(mnemonic)
+        const account = web3.eth.accounts.privateKeyToAccount(privateKey)
+        web3.eth.accounts.wallet.add(account)
+        client.web3 = web3
+        cachedWeb3Instances[network] = web3
+      }
+    }
+
     return {
       asset,
       client
@@ -143,3 +197,5 @@ export const createClient = (network, mnemonic) => {
     return acc
   }, {})
 }
+
+export default createClient

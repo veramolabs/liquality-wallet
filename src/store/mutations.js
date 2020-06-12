@@ -44,7 +44,12 @@ export default {
 
     state.history[network][walletId].push(order)
   },
-  NEW_TRASACTION (state, { network, walletId, transaction }) {
+  NEW_LOAN (state, { network, walletId, loan }) {
+    ensureNetworkWalletTree(state.history, network, walletId, [])
+
+    state.history[network][walletId].push(loan)
+  },
+  NEW_TRANSACTION (state, { network, walletId, transaction }) {
     ensureNetworkWalletTree(state.history, network, walletId, [])
 
     state.history[network][walletId].push(transaction)
@@ -68,5 +73,8 @@ export default {
   },
   UPDATE_MARKET_DATA (state, { network, marketData }) {
     Vue.set(state.marketData, network, marketData)
+  },
+  UPDATE_SPOT_PRICE_DATA (state, { network, spotPriceData }) {
+    state.spotPriceData = spotPriceData
   }
 }

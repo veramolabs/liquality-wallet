@@ -22,6 +22,11 @@ import { unlockWallet } from './unlockWallet'
 import { lockWallet } from './lockWallet'
 import { updateBalances } from './updateBalances'
 import { updateMarketData } from './updateMarketData'
+import { getMatchedFunds } from './getMatchedFunds'
+import { updateSpotPriceData } from './updateSpotPriceData'
+
+import { newLoan } from './newLoan'
+import { performNextLoanAction } from './performNextLoanAction'
 
 export {
   changeActiveWalletId,
@@ -47,5 +52,9 @@ export {
   unlockWallet,
   lockWallet,
   updateBalances,
-  updateMarketData
+  updateMarketData,
+  getMatchedFunds,
+  updateSpotPriceData,
+  performNextLoanAction,
+  newLoan
 }

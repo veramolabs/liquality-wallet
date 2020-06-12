@@ -1,11 +1,13 @@
 import { timestamp } from '../utils'
 
-export const checkIfQuoteExpired = async ({ commit }, { network, walletId, order }) => {
-  if (timestamp() >= order.expiresAt) {
+export const checkIfQuoteExpired = async ({ commit, getters }, { network, walletId, id }) => {
+  const item = getters.historyItemById(network, walletId, id)
+
+  if (timestamp() >= item.expiresAt) {
     commit('UPDATE_HISTORY', {
       network,
       walletId,
-      id: order.id,
+      id: item.id,
       updates: {
         status: 'QUOTE_EXPIRED'
       }

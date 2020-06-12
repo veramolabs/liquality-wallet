@@ -1,4 +1,6 @@
-import { createClient } from './factory/client'
+import createClient from './factory/client'
+import createArbiter from './factory/arbiter'
+import createAgent from './factory/agent'
 
 const agentEndpoints = {
   testnet: [
@@ -10,9 +12,11 @@ const agentEndpoints = {
 }
 
 const clientCache = {}
+const arbiterCache = {}
+const agentCache = {}
 
 export default {
-  agentEndpoints (state) {
+  agentEndpoints () {
     return network => agentEndpoints[network]
   },
   client (state) {
@@ -27,6 +31,28 @@ export default {
       clientCache[cacheKey] = client
 
       return client[asset]
+    }
+  },
+  arbiter () {
+    return (network) => {
+      const cachedArbiter = arbiterCache[network]
+      if (cachedArbiter) return cachedArbiter
+
+      const arbiter = createArbiter(network)
+      arbiterCache[network] = arbiter
+
+      return arbiter
+    }
+  },
+  agent () {
+    return (agentUrl) => {
+      const cachedAgent = agentCache[agentUrl]
+      if (cachedAgent) return cachedAgent
+
+      const agent = createAgent(agentUrl)
+      agentCache[agentUrl] = agent
+
+      return agent
     }
   },
   historyItemById (state) {

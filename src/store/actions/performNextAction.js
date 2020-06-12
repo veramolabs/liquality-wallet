@@ -7,6 +7,7 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
   const order = getters.historyItemById(network, walletId, id)
   if (!order) return
   if (!order.status) return
+  if (order.type !== 'ORDER') return
 
   const fromClient = getters.client(network, walletId, order.from)
   const toClient = getters.client(network, walletId, order.to)
@@ -54,9 +55,9 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
 
     dispatch('performNextAction', { network, walletId, id })
   } else if (order.status === 'SECRET_READY') {
-    if (await dispatch('checkIfQuoteExpired', { network, walletId, order })) return
+    if (await dispatch('checkIfQuoteExpired', { network, walletId, id })) return
 
-    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.from, order })
+    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.from, id })
 
     let fromFundHash
 
@@ -186,7 +187,7 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
 
     INTERVALS.push(interval)
   } else if (['READY_TO_EXCHANGE'].includes(order.status)) {
-    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.to, order })
+    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.to, id })
 
     let toClaimHash
 
@@ -256,7 +257,7 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
     const diff = ((order.swapExpiration - timestamp()) + random(5, 10)) * 1000
 
     const refund = async () => {
-      const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.from, order })
+      const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.from, id })
 
       let refundHash
 
@@ -309,7 +310,7 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
       await refund()
     }
   } else if (order.status === 'READY_TO_SEND') {
-    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.to, order })
+    const lock = await dispatch('getLockForAsset', { network, walletId, asset: order.to, id })
 
     let sendToHash
 

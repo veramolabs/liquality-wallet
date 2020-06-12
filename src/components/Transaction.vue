@@ -7,6 +7,7 @@
       <SendIcon v-if="type ==='SEND'" class="transaction_icon_send" />
       <ReceiveIcon v-if="type ==='RECEIVE'" class="transaction_icon_receive" />
       <SwapIcon v-if="type ==='SWAP'" class="transaction_icon_swap"/>
+      <LoanIcon v-if="type ==='LOAN'" class="transaction_icon_loan"/>
     </div>
     <div class="transaction_action">{{title}}</div>
     <div class="transaction_time">{{time}}</div>
@@ -27,6 +28,7 @@ import moment from 'moment'
 import cryptoassets from '@liquality/cryptoassets'
 import SendIcon from '@/assets/icons/arrow_send.svg'
 import ReceiveIcon from '@/assets/icons/arrow_receive.svg'
+import LoanIcon from '@/assets/icons/al.svg'
 import SwapIcon from '@/assets/icons/arrow_swap.svg'
 import CompletedIcon from '@/assets/icons/completed.svg'
 import SpinnerIcon from '@/assets/icons/spinner.svg'
@@ -37,14 +39,15 @@ export default {
     ReceiveIcon,
     SwapIcon,
     CompletedIcon,
-    SpinnerIcon
+    SpinnerIcon,
+    LoanIcon
   },
   props: {
     asset: String,
     amount: Number,
     type: {
       type: String,
-      validator: (val) => ['SEND', 'RECEIVE', 'SWAP']
+      validator: (val) => ['SEND', 'RECEIVE', 'SWAP', 'LOAN']
     },
     title: String,
     timestamp: Number,
@@ -99,6 +102,14 @@ export default {
     }
 
     &_swap {
+      width: 20px;
+      height: 24px;
+      path {
+        stroke: #b868d9;
+      }
+    }
+
+    &_loan {
       width: 20px;
       height: 24px;
       path {

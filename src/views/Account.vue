@@ -24,6 +24,14 @@
           <router-link v-bind:to="'/account/' + asset + '/swap'"><button class="account_actions_button">
             <div class="account_actions_button_wrapper"><SwapIcon class="account_actions_button_icon account_actions_button_swap" /></div>Swap
           </button></router-link>
+
+          <router-link v-bind:to="'/account/' + asset + '/loan'">
+          <button class="account_actions_button">
+              <div class="account_actions_button_wrapper">
+            <ALIcon class="account_actions_button_icon account_actions_button_icon" />
+              </div>
+              New Loan
+            </button></router-link>
         </div>
         <div class="account_title">Transactions</div>
       </div>
@@ -36,7 +44,7 @@
           v-bind:type="item.type"
           v-bind:title="getTransactionTitle(item)"
           v-bind:timestamp="item.startTime"
-          v-bind:confirmed="['SUCCESS', 'REFUNDED'].includes(item.status)"
+          v-bind:confirmed="['SUCCESS', 'REFUNDED', 'WITHDRAWN'].includes(item.status)"
           v-bind:step="getTransactionStep(item)"
           v-bind:numSteps="getTransactionNumSteps(item)"
           v-bind:error="item.error"
@@ -50,11 +58,12 @@
 import { mapState, mapActions } from 'vuex'
 import RefreshIcon from '@/assets/icons/refresh.svg'
 import SendIcon from '@/assets/icons/arrow_send.svg'
+import ALIcon from '@/assets/icons/al.svg'
 import ReceiveIcon from '@/assets/icons/arrow_receive.svg'
 import SwapIcon from '@/assets/icons/arrow_swap.svg'
 import Transaction from '@/components/Transaction'
 import HistoryModal from '@/components/HistoryModal.vue'
-import { prettyBalance } from '@/utils/coinFormatter'
+import { dpUI, prettyBalance } from '@/utils/coinFormatter'
 
 const ORDER_STATUS_MAP = {
   QUOTE: 1,
@@ -67,6 +76,15 @@ const ORDER_STATUS_MAP = {
   READY_TO_SEND: 4
 }
 
+const LOAN_STATUS_MAP = {
+  QUOTE: 1,
+  SECRET_READY: 2,
+  INITIATED: 3,
+  AWAITING_COLLATERAL: 4,
+  READY_TO_LOCK: 5,
+  WAIT_FOR_WITHDRAW: 6
+}
+
 export default {
   data () {
     return {
@@ -76,6 +94,7 @@ export default {
   components: {
     RefreshIcon,
     SendIcon,
+    ALIcon,
     ReceiveIcon,
     SwapIcon,
     Transaction,
@@ -102,9 +121,15 @@ export default {
       this.updateBalances({ network: this.activeNetwork, walletId: this.activeWalletId })
     },
     getTransactionStep (item) {
+      if (item.type === 'LOAN') {
+        return LOAN_STATUS_MAP[item.status]
+      }
       return item.type === 'SWAP' ? ORDER_STATUS_MAP[item.status] : undefined
     },
     getTransactionNumSteps (item) {
+      if (item.type === 'LOAN') {
+        return 6
+      }
       if (item.type !== 'SWAP') {
         return undefined
       }
@@ -121,9 +146,22 @@ export default {
       if (item.type === 'RECEIVE') {
         return `Receive ${item.from}`
       }
+      if (item.type === 'LOAN') {
+        return `${item.principalAmount} ${item.principal} Loan`
+      }
     },
     getTransactionAmount (item) {
-      return prettyBalance(item.type === 'SWAP' ? item.fromAmount : item.amount, item.from)
+      switch (item.type) {
+        case 'SWAP': {
+          return prettyBalance(item.fromAmount, item.from)
+        }
+        case 'LOAN': {
+          return dpUI(item.principalAmount, item.principal)
+        }
+        default: {
+          return prettyBalance(item.amount, item.from)
+        }
+      }
     }
   }
 }
@@ -196,6 +234,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 200px;
     margin: 0 auto;
     padding: 24px 0;
 
@@ -209,6 +248,7 @@ export default {
       cursor: pointer;
       color: $color-text-secondary;
       background: none;
+      white-space: nowrap;
 
       &_wrapper {
         display: flex;

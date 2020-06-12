@@ -23,7 +23,7 @@ export const sendTransaction = async ({ commit, getters }, { network, walletId, 
     status: 'SUCCESS'
   }
 
-  commit('NEW_TRASACTION', {
+  commit('NEW_TRANSACTION', {
     network,
     walletId,
     transaction

@@ -38,7 +38,7 @@ module.exports = {
         }
       },
       manifestTransformer: manifest => {
-        manifest.content_security_policy = "script-src 'self' 'unsafe-eval'; object-src 'self'"
+        manifest.content_security_policy = "script-src 'self' http://localhost:8098 'unsafe-eval'; object-src 'self'"
 
         return manifest
       }

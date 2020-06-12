@@ -17,6 +17,7 @@ export default {
   balances: {},
   history: {},
   marketData: {},
+  spotPriceData: {},
 
   activeNetwork: 'testnet',
   activeWalletId: null,

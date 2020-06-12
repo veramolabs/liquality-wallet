@@ -14,6 +14,8 @@ import SendConfirm from '@/views/SendConfirm.vue'
 import Receive from '@/views/Receive.vue'
 import Swap from '@/views/Swap.vue'
 import SwapConfirm from '@/views/SwapConfirm.vue'
+import Loan from '@/views/Loan.vue'
+import LoanConfirm from '@/views/LoanConfirm.vue'
 
 import Enable from '@/views/Enable.vue'
 import Permission from '@/views/Permission.vue'
@@ -82,6 +84,17 @@ const routes = [
     name: 'SwapConfirm',
     path: '/account/:asset/swap/confirm',
     component: SwapConfirm,
+    props: true
+  },
+  {
+    path: '/account/:asset/loan',
+    component: Loan,
+    props: true
+  },
+  {
+    name: 'LoanConfirm',
+    path: '/account/:asset/loan/confirm',
+    component: LoanConfirm,
     props: true
   },
   {
