@@ -7,7 +7,7 @@ export const performNextAction = async ({ commit, getters, dispatch }, { network
   const order = getters.historyItemById(network, walletId, id)
   if (!order) return
   if (!order.status) return
-  if (order.type !== 'ORDER') return
+  if (order.type !== 'SWAP') return
 
   const fromClient = getters.client(network, walletId, order.from)
   const toClient = getters.client(network, walletId, order.to)

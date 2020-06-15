@@ -105,7 +105,7 @@ export default {
       width: 20px;
       height: 24px;
       path {
-        stroke: #b868d9;
+        stroke: #A8AEB7;
       }
     }
 
@@ -113,7 +113,7 @@ export default {
       width: 20px;
       height: 24px;
       path {
-        stroke: #A8AEB7;
+        stroke: #b868d9;
       }
     }
   }
