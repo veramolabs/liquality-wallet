@@ -123,6 +123,7 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
         collateralRefundableP2SHAddress,
         refundableCollateralAmount,
         seizableCollateralAmount,
+        loanExpiration,
         loanId
       } = await agent.getLoanInfoByRequestId(id)
 
@@ -136,6 +137,7 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
           collateralRefundableP2SHAddress,
           refundableCollateralAmount,
           seizableCollateralAmount,
+          loanExpiration,
           loanId
         }
 
@@ -271,12 +273,12 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
           ...updates
         })
 
-        dispatch('performNextLoanAction', { network, walletId, id })
+        dispatch('updateBalances', { network, walletId, assets: [loan.principal, loan.collateral] })
       }
     }, random(15000, 30000))
 
     INTERVALS.push(interval)
-  } else if (loan.status === 'READY_TO_SEND') {
+  } else if (loan.status === 'READY_TO_REPAY') {
     const lock = await dispatch('getLockForAsset', { network, walletId, asset: loan.to, id })
 
     let sendToHash

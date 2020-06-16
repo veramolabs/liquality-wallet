@@ -80,6 +80,7 @@ export default {
   "icon time detail status";
   align-items: center;
   font-size: $font-size-sm;
+  cursor: pointer;
 
   &_icon {
     grid-area: icon;
