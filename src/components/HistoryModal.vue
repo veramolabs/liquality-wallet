@@ -133,7 +133,7 @@
           </tr>
           <tr>
             <td class="text-muted text-right small-12">Loan Expiration</td>
-            <td>{{new Date(item.loanExpiration * 1000)}}</td>
+            <td>{{new Date(item.expirations.loanExpiration * 1000)}}</td>
           </tr>
           <tr v-if="item.endTime">
             <td class="text-muted text-right small-12">Finished At</td>

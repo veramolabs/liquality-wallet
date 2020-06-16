@@ -26,7 +26,7 @@ const LOAN_STATUS_MAP = {
     return 'Locking collateral'
   },
   WITHDRAWN (item) {
-    return `Loan successfully withdrawn, ${item.principalAmount} ${item.principal}} ready to use`
+    return `Loan successfully withdrawn, ${item.principalAmount} ${item.principal} ready to use`
   }
 }
 

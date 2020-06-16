@@ -11,6 +11,7 @@ export const newLoan = async ({ dispatch, commit, getters }, { network, walletId
   loan.status = 'QUOTE'
   loan.collateralAmount = collateralAmount
   loan.sendTo = sendTo
+  loan.expirations = {}
   loan.walletId = walletId
 
   commit('NEW_LOAN', { network, walletId, loan })

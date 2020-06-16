@@ -48,7 +48,8 @@ export const fetchLoanFromChain = async (client, network, principal, loanId, add
   loan.expirations = {
     approveExpiration: loan.approveExpiration,
     liquidationExpiration: loan.liquidationExpiration,
-    seizureExpiration: loan.seizureExpiration
+    seizureExpiration: loan.seizureExpiration,
+    loanExpiration: loan.loanExpiration
   }
 
   Object.assign(loan, loan.bools)

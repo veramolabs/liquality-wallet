@@ -11,7 +11,8 @@ const PENDING_STATES = [
 ]
 
 const PENDING_LOAN_STATES = [
-  'WAIT_FOR_WITHDRAW'
+  'WAIT_FOR_WITHDRAW',
+  'AWAITING_COLLATERAL'
 ]
 
 export const checkPendingSwaps = async ({ state, dispatch }) => {

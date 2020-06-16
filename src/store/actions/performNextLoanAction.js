@@ -123,7 +123,6 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
         collateralRefundableP2SHAddress,
         refundableCollateralAmount,
         seizableCollateralAmount,
-        loanExpiration,
         loanId
       } = await agent.getLoanInfoByRequestId(id)
 
@@ -137,7 +136,6 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
           collateralRefundableP2SHAddress,
           refundableCollateralAmount,
           seizableCollateralAmount,
-          loanExpiration,
           loanId
         }
 
