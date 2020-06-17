@@ -8,11 +8,13 @@ import { clientExec } from './clientExec'
 import { getLockForAsset } from './getLockForAsset'
 import { getUnusedAddresses } from './getUnusedAddresses'
 import { injectedProvider } from './injectedProvider'
+import { injectedActionProvider } from './injectedActionProvider'
 import { newSwap } from './newSwap'
 import { performNextAction } from './performNextAction'
 import { proxyMutation } from './proxyMutation'
 import { replyOriginAccess } from './replyOriginAccess'
 import { replyPremission } from './replyPremission'
+import { replyDepositCancelled } from './replyDepositCancelled'
 import { requestOriginAccess } from './requestOriginAccess'
 import { retrySwap } from './retrySwap'
 import { sendTransaction } from './sendTransaction'
@@ -26,6 +28,7 @@ import { getMatchedFunds } from './getMatchedFunds'
 import { updateSpotPriceData } from './updateSpotPriceData'
 
 import { newLoan } from './newLoan'
+import { newExternalLoan } from './newExternalLoan'
 import { performNextLoanAction } from './performNextLoanAction'
 
 export {
@@ -39,11 +42,13 @@ export {
   getLockForAsset,
   getUnusedAddresses,
   injectedProvider,
+  injectedActionProvider,
   newSwap,
   performNextAction,
   proxyMutation,
   replyOriginAccess,
   replyPremission,
+  replyDepositCancelled,
   requestOriginAccess,
   retrySwap,
   sendTransaction,
@@ -56,5 +61,6 @@ export {
   getMatchedFunds,
   updateSpotPriceData,
   performNextLoanAction,
-  newLoan
+  newLoan,
+  newExternalLoan
 }

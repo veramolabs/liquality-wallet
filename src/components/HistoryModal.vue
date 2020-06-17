@@ -129,15 +129,11 @@
           </tr>
           <tr>
             <td class="text-muted text-right small-12">Loan ID</td>
-            <td><a :href="orderLink" rel="noopener" target="_blank">{{item.loanId}}</a></td>
+            <td><a :href="loanLink" rel="noopener" target="_blank">{{item.loanId}}</a></td>
           </tr>
-          <tr>
+          <tr v-if="item.expirations.loanExpiration">
             <td class="text-muted text-right small-12">Loan Expiration</td>
             <td>{{new Date(item.expirations.loanExpiration * 1000)}}</td>
-          </tr>
-          <tr v-if="item.endTime">
-            <td class="text-muted text-right small-12">Finished At</td>
-            <td>{{new Date(item.endTime)}}</td>
           </tr>
           <tr>
             <td class="text-muted text-right small-12">Collateral Amount Locked</td>
@@ -147,40 +143,9 @@
             <td class="text-muted text-right small-12">Status</td>
             <td>{{item.status}}</td>
           </tr>
-          <tr v-if="item.secret">
-            <td class="text-muted text-right small-12">Secret</td>
-            <td>
-              <span class="cursor-pointer text-muted font-weight-light" v-if="secretHidden" @click="secretHidden = false">
-                Click to reveal the secret
-              </span>
-              <span v-else>
-                {{item.secret}}
-              </span>
-            </td>
-          </tr>
-          <tr v-if="item.secretHash">
-            <td class="text-muted text-right small-12">Secret Hash</td>
-            <td>{{item.secretHash}}</td>
-          </tr>
-          <tr v-if="item.fromFundHash">
-            <td class="text-muted text-right small-12">Your {{item.from}} funding<br>transaction</td>
-            <td>{{item.fromFundHash}}</td>
-          </tr>
-          <tr v-if="item.toFundHash">
-            <td class="text-muted text-right small-12">Counter-party's {{item.to}}<br>funding transaction</td>
-            <td>{{item.toFundHash}}</td>
-          </tr>
-          <tr v-if="item.toClaimHash">
-            <td class="text-muted text-right small-12">Your {{item.to}} claim<br>transaction</td>
-            <td>{{item.toClaimHash}}</td>
-          </tr>
-          <tr v-if="item.sendTo">
-            <td class="text-muted text-right small-12">Your {{item.to}} send to<br>address</td>
-            <td>{{item.sendTo}}</td>
-          </tr>
-          <tr v-if="item.sendTx">
-            <td class="text-muted text-right small-12">Your {{item.to}} send<br>transaction</td>
-            <td>{{item.sendTx}}</td>
+          <tr v-if="item.txHash">
+            <td class="text-muted text-right small-12">Collateral Lock Transaction Hash</td>
+            <td>{{item.txHash}}</td>
           </tr>
           <tr v-if="false">
             <td class="text-muted text-right small-12">Actions</td>
@@ -196,7 +161,7 @@
             <td class="text-muted text-right small-12">Actions</td>
             <td class="text-danger">
               <span class="cursor-pointer mr-3" v-if="item.error" @click="retry">Retry</span>
-              <span class="cursor-pointer" @click="$emit('close')">Repay </span>
+              <span class="cursor-pointer" @click="$emit('close')">Repay</span>
               <span class="cursor-pointer" @click="$emit('close')">Close</span>
             </td>
           </tr>
@@ -231,6 +196,9 @@ export default {
     },
     orderLink () {
       return this.item.agent + '/api/swap/order/' + this.item.id + '?verbose=true'
+    },
+    loanLink () {
+      return `https://atomic.loans/app/borrow/${this.item.principal}/${this.item.loanId}`
     }
   },
   methods: {

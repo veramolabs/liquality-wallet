@@ -13,10 +13,14 @@
         <label>At</label>
         <p class="confirm-value">{{shortenAddress(sendTo)}}</p>
       </div>
+      <div class="form-group">
+        <label>Loan Length</label>
+        <p class="confirm-value">{{Math.floor(length / 86400)}} Day(s)</p>
+      </div>
     </div>
 
     <div class="wrapper_bottom">
-      <SwapInfo />
+      <LoanInfo />
       <div class="button-group">
         <button class="btn btn-light btn-outline-primary btn-lg" @click="$router.go(-1)">Cancel</button>
         <button class="btn btn-primary btn-lg btn-block btn-icon" @click="send" :disabled="loading">
@@ -34,13 +38,13 @@ import cryptoassets from '@liquality/cryptoassets'
 import { shortenAddress } from '../utils/address'
 import SwapIcon from '@/assets/icons/arrow_swap.svg'
 import SpinnerIcon from '@/assets/icons/spinner.svg'
-import SwapInfo from '@/components/SwapInfo'
+import LoanInfo from '@/components/LoanInfo'
 
 export default {
   components: {
     SwapIcon,
     SpinnerIcon,
-    SwapInfo
+    LoanInfo
   },
   props: ['agentUrl', 'principal', 'collateral', 'amount', 'collateralAmount', 'length', 'sendTo'],
   data () {

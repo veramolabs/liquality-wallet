@@ -44,6 +44,10 @@
             </span>
           </div>
         </div>
+        <div class="text-right">
+          <span class="text-muted">Balance&nbsp;</span>
+          <span>{{collateralBalance}} {{collateral}}</span>
+        </div>
       </div>
 
      <div class="form-group">
@@ -58,10 +62,7 @@
           <div class="swap_limits">
             <a href="#" @click="setAmount(1)">Min</a> 1 <a href="#" class="ml-1" @click="setLengthInDays(maxLength)">Max</a> {{maxLength}}
           </div>
-          <div class="text-right">
-            <span class="text-muted">Balance&nbsp;</span>
-            <span>{{balance}} {{asset}}</span>
-          </div>
+
         </small>
       </div>
     </div>
@@ -85,7 +86,7 @@ export default {
   data () {
     return {
       amount: 25,
-      toAsset: 'BTC',
+      collateral: 'BTC',
       enterSendToAddress: false,
       sendTo: null,
       lengthInDays: 1,
@@ -97,7 +98,7 @@ export default {
     asset: String
   },
   async created () {
-    this.toAsset = Object.keys(this.selectedMarket)[0]
+    this.collateral = Object.keys(this.selectedMarket)[0]
     this.updateMarketData({ network: this.activeNetwork })
     this.updateSpotPriceData({ network: this.activeNetwork })
     await this.getMaxValues()
@@ -132,26 +133,28 @@ export default {
       return this.amount || 0
     },
     collateralAmount () {
-      return dpUI(BN(this.amount).times(2.2).div(this.spotPriceData[this.toAsset]), this.toAsset)
+      return dpUI(BN(this.amount).times(2.2).div(this.spotPriceData[this.collateral]), this.collateral)
     },
     market () {
-      return this.selectedMarket[this.toAsset]
+      return this.selectedMarket[this.collateral]
     },
     balance () {
       return prettyBalance(this.networkWalletBalances[this.asset], this.asset)
+    },
+    collateralBalance () {
+      return prettyBalance(this.networkWalletBalances[this.collateral], this.collateral)
     },
     selectedMarket () {
       return this.networkMarketData[this.asset]
     },
     canSwap () {
       const amount = BN(this.safeAmount)
-
       if (amount.gt(this.max) || amount.lt(this.min) || amount.gt(this.balance)) return false
 
       return true
     },
     toAmount () {
-      return dpUI(BN(this.safeAmount).times(this.bestRateBasedOnAmount), this.toAsset)
+      return dpUI(BN(this.safeAmount).times(this.bestRateBasedOnAmount), this.collateral)
     }
   },
   methods: {
@@ -163,10 +166,10 @@ export default {
       this.lengthInDays = lengthInDays
     },
     setToAsset (val) {
-      this.toAsset = val
+      this.collateral = val
     },
     async getMaxValues () {
-      const matchedMaxAmountAgents = await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.toAsset, maxAmount: true })
+      const matchedMaxAmountAgents = await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.collateral, maxAmount: true })
       const currentTime = this.getTime()
 
       if (matchedMaxAmountAgents.length > 0) {
@@ -174,7 +177,7 @@ export default {
         this.rawMaxAmount = maxAmount
       }
 
-      const matchedMaxLengthAgents = await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.toAsset, amount: this.amount, maxLength: true })
+      const matchedMaxLengthAgents = await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.collateral, amount: this.amount, maxLength: true })
       if (matchedMaxLengthAgents.length > 0) {
         const maxLength = matchedMaxLengthAgents[0].maxLoanLengthTimestamp - currentTime
         this.rawMaxLength = maxLength
@@ -184,13 +187,13 @@ export default {
       return Math.floor(new Date().getTime() / 1000)
     },
     async review () {
-      const matchedAgents = (await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.toAsset, amount: this.amount, length: this.length }))
+      const matchedAgents = (await this.getMatchedFunds({ network: this.activeNetwork, asset: this.asset, collateral: this.collateral, amount: this.amount, length: this.length }))
       if (matchedAgents.length === 0) return
 
       this.$router.push({
         name: 'LoanConfirm',
         params: {
-          agentUrl: matchedAgents[0].url, principal: this.asset, collateral: this.toAsset, amount: this.amount, length: this.length, collateralAmount: this.collateralAmount, sendTo: this.sendTo
+          agentUrl: matchedAgents[0].url, principal: this.asset, collateral: this.collateral, amount: this.amount, length: this.length, collateralAmount: this.collateralAmount, sendTo: this.sendTo
         }
       })
     }

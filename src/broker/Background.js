@@ -150,6 +150,18 @@ class Background {
 
         this.storeProxy(id, connection, 'injectedProvider', { origin, data })
         break
+
+      case 'EXTERNAL_ACTION_REQUEST':
+        if (!allowed) {
+          connection.postMessage({
+            id,
+            data: {
+              error: 'Use enable() method first'
+            }
+          })
+        }
+        this.storeProxy(id, connection, 'injectedActionProvider', { origin, data })
+        break
     }
   }
 

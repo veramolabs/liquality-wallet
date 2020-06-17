@@ -54,6 +54,10 @@ class ProviderManager {
     return this.cache[asset]
   }
 
+  runAction (action, actionData) {
+    return proxy('EXTERNAL_ACTION_REQUEST', { action, actionData })
+  }
+
   enable () {
     return proxy('ENABLE_REQUEST')
   }

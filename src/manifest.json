@@ -24,7 +24,9 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.liquality.io/*"
+        "https://*.liquality.io/*",
+        "https://localhost/*",
+        "https://atomic.loans/*"
       ],
       "js": [
         "js/content-script.js"

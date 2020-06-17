@@ -12,7 +12,8 @@ const RESTRICTED = [
   /^swap.generateSecret$/,
   /^swap.initiateSwap$/,
   /^swap.claimSwap$/,
-  /^swap.refundSwap$/
+  /^swap.refundSwap$/,
+  /^loan.collateral.refundMany$/
 ]
 
 export const injectedProvider = async ({ state, getters }, { origin, data }) => {
@@ -54,9 +55,12 @@ export const injectedProvider = async ({ state, getters }, { origin, data }) => 
     })
   }
 
-  const [namespace, fnName] = method.split('.')
+  const [namespace, fnName, fnName2] = method.split('.')
 
   if (!client[namespace][fnName]) throw new Error('Invalid method')
-
+  if (fnName2) {
+    if (!client[namespace][fnName][fnName2]) throw new Error('Invalid method')
+    return client[namespace][fnName][fnName2](...args)
+  }
   return client[namespace][fnName](...args)
 }

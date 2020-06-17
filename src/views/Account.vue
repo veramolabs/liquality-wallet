@@ -25,13 +25,12 @@
             <div class="account_actions_button_wrapper"><SwapIcon class="account_actions_button_icon account_actions_button_swap" /></div>Swap
           </button></router-link>
 
-          <router-link v-bind:to="'/account/' + asset + '/loan'">
-          <button class="account_actions_button">
-              <div class="account_actions_button_wrapper">
-            <ALIcon class="account_actions_button_icon account_actions_button_icon" />
-              </div>
-              New Loan
-            </button></router-link>
+          <!-- TODO: Fetch valid loan markets from /loanmarketinfo -->
+          <router-link v-if="asset === 'DAI' || asset == 'USDC'" v-bind:to="'/account/' + asset + '/loan'"><button class="account_actions_button">
+            <div class="account_actions_button_wrapper"><ALIcon class="account_actions_button_icon account_actions_button_loan" /></div>
+              Loan
+            </button>
+          </router-link>
         </div>
         <div class="account_title">Transactions</div>
       </div>
@@ -268,6 +267,12 @@ export default {
 
       &_swap {
         height: 30px;
+      }
+
+      &_loan {
+        path {
+          stroke: #b868d9;
+        }
       }
     }
   }

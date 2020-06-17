@@ -1,6 +1,6 @@
 import { NetworkAssets } from '../factory/client'
 
-export const updateBalances = async ({ commit, getters }, { network, walletId }) => {
+export const updateBalances = ({ commit, getters }, { network, walletId }) => {
   const assets = NetworkAssets[network]
 
   return Promise.all(assets
@@ -9,5 +9,6 @@ export const updateBalances = async ({ commit, getters }, { network, walletId })
       const balance = (await getters.client(network, walletId, asset).chain.getBalance(addresses)).toNumber()
 
       commit('UPDATE_BALANCE', { network, walletId, asset, balance })
+      return { asset, balance }
     }))
 }

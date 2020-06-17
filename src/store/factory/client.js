@@ -101,7 +101,7 @@ const ERC20 = {
 
 export const NetworkAssets = {
   mainnet: ['BTC', 'ETH', 'DAI', 'USDC'],
-  testnet: ['BTC', 'ETH', 'DAI']
+  testnet: ['BTC', 'ETH', 'DAI', 'USDC']
 }
 
 const shouldInjectWeb3 = (asset) => asset === 'ETH' || ERC20[asset]

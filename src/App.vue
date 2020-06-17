@@ -21,7 +21,7 @@ export default {
   computed: mapState(['brokerReady', 'keyUpdatedAt', 'termsAcceptedAt', 'unlockedAt']),
   watch: {
     unlockedAt: function (unlocked) {
-      if (this.$route.path.startsWith('/permission') || this.$route.path.startsWith('/enable')) return
+      if (this.$route.query.isPopup || this.$route.path.startsWith('/permission') || this.$route.path.startsWith('/enable')) return
       if (unlocked) this.$router.replace('/wallet')
     }
   }

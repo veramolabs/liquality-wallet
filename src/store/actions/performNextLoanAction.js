@@ -1,6 +1,6 @@
 import { random } from 'lodash-es'
 import { sha256 } from '@liquality/crypto'
-import { INTERVALS, TIMEOUTS, timestamp, unlockAsset, updateOrder } from '../utils'
+import { INTERVALS, unlockAsset } from '../utils'
 import cryptoassets from '@liquality/cryptoassets'
 import { createLoanNotification } from '../../broker/notification'
 import { payments } from 'bitcoinjs-lib'
@@ -126,8 +126,6 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
         loanId
       } = await agent.getLoanInfoByRequestId(id)
 
-      console.log(status)
-
       if (status === 'AWAITING_COLLATERAL' && createdAt !== '0') {
         clearInterval(interval)
         const updates = {
@@ -153,12 +151,22 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
         })
 
         dispatch('performNextLoanAction', { network, walletId, id })
+      } else if (status === 'FAILED') {
+        clearInterval(interval)
+
+        commit('UPDATE_HISTORY', {
+          network,
+          walletId,
+          id,
+          updates: {
+            error: 'Loan request failed'
+          }
+        })
       }
     }, random(15000, 30000))
 
     INTERVALS.push(interval)
   } else if (loan.status === 'AWAITING_COLLATERAL') {
-    console.log('awaiting collat... fetching details')
     const chainLoan = await fetchLoanFromChain(principalClient, network, principal, loanId)
     const { pubKeys, secretHashes, expirations } = chainLoan
 
@@ -177,7 +185,6 @@ export const performNextLoanAction = async ({ commit, getters, dispatch }, { net
     })
     dispatch('performNextLoanAction', { network, walletId, id })
   } else if (loan.status === 'READY_TO_LOCK') {
-    console.log('locking...')
     const lock = await dispatch('getLockForAsset', { network, walletId, asset: loan.principal, id })
     const {
       pubKeys,

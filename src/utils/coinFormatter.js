@@ -27,6 +27,12 @@ export const dpUI = (amount, coin, floor = false) => {
   return BN(amount).dp(DP_UI_MAP[coin], floor ? BN.ROUND_FLOOR : BN.ROUND_CEIL)
 }
 
+export const unitToCurrency = (amount, coin) => {
+  if (!amount) return amount
+
+  return cryptoassets[coin.toLowerCase()].unitToCurrency(amount)
+}
+
 export const prettyBalance = (amount, coin, floor = false) => {
   if (!amount) return amount
 
