@@ -57,10 +57,16 @@ export const injectedProvider = async ({ state, getters }, { origin, data }) => 
 
   const [namespace, fnName, fnName2] = method.split('.')
 
+  if (!fnName) {
+    return client.getMethod(namespace)(...args)
+  }
+
   if (!client[namespace][fnName]) throw new Error('Invalid method')
+
   if (fnName2) {
     if (!client[namespace][fnName][fnName2]) throw new Error('Invalid method')
     return client[namespace][fnName][fnName2](...args)
   }
+
   return client[namespace][fnName](...args)
 }

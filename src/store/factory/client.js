@@ -5,6 +5,7 @@ import BitcoinCollateralSwapProvider from '@atomicloans/bitcoin-collateral-swap-
 
 import BitcoinSwapProvider from '@liquality/bitcoin-swap-provider'
 import BitcoinJsWalletProvider from '@liquality/bitcoin-js-wallet-provider'
+import BitcoinRpcProvider from '@liquality/bitcoin-rpc-provider'
 import BitcoinEsploraApiProvider from '@liquality/bitcoin-esplora-api-provider'
 import BitcoinEsploraSwapFindProvider from '@liquality/bitcoin-esplora-swap-find-provider'
 
@@ -25,8 +26,8 @@ import { generateAddressesFromSeed } from '../utils'
 
 const rpc = {
   BTC: {
-    bitcoin: ['https://blockstream.info/api', 2],
-    bitcoin_testnet: ['https://blockstream.info/testnet/api', 2]
+    bitcoin: ['https://btc.atomicloans.io/mainnet/', 'atomicloans', 'local321'],
+    bitcoin_testnet: ['https://btc.atomicloans.io/testnet/', 'atomicloans', 'local321']
   },
   ETH: {
     mainnet: ['https://mainnet.infura.io/v3/da99ebc8c0964bb8bb757b6f8cc40f1f'],
@@ -44,6 +45,13 @@ const rpc = {
   }
 }
 
+const api = {
+  BTC: {
+    bitcoin: ['https://blockstream.info/api', 2],
+    bitcoin_testnet: ['https://blockstream.info/testnet/api', 2]
+  }
+}
+
 const networks = {
   BTC: BitcoinNetworks,
   ETH: EthereumNetworks,
@@ -52,10 +60,14 @@ const networks = {
 }
 
 const RpcProviders = {
-  BTC: BitcoinEsploraApiProvider,
+  BTC: BitcoinRpcProvider,
   ETH: EthereumRpcProvider,
   DAI: EthereumRpcProvider,
   USDC: EthereumRpcProvider
+}
+
+const EsploraAPIProviders = {
+  BTC: BitcoinEsploraApiProvider
 }
 
 const JsWalletProviders = {
@@ -143,6 +155,12 @@ const createClient = (network, mnemonic) => {
     client.addProvider(new RpcProviders[asset](
       ...rpc[asset][NetworkArgs[asset]]
     ))
+
+    if (EsploraAPIProviders[asset]) {
+      client.addProvider(new EsploraAPIProviders[asset](
+        ...api[asset][NetworkArgs[asset]]
+      ))
+    }
 
     client.addProvider(new JsWalletProviders[asset](
       networks[asset][NetworkArgs[asset]],
