@@ -26,7 +26,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.liquality.io/*"
+        "<all_urls>"
       ],
       "js": [
         "js/content-script.js"
