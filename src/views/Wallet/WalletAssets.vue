@@ -1,6 +1,5 @@
 <template>
-  <WalletAccounts @item-selected="onAccountSelected"
-                  :accounts="accountsData"/>
+  <WalletAccounts @item-selected="onAccountSelected" :accounts="accountsData" />
 </template>
 
 <script>
@@ -22,5 +21,4 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-</style>
+<style lang="scss"></style>

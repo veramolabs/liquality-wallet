@@ -22,6 +22,9 @@ export default {
 
   accounts: {},
 
+  credentials: [],
+  identifiers: [],
+
   fiatRates: {},
   fees: {},
   history: {},

@@ -69,14 +69,16 @@ export default {
     Object.assign(item, updates)
   },
   REMOVE_ORDER (state, { network, walletId, id }) {
-    Vue.set(state.history[network], walletId, state.history[network][walletId].filter(i => i.id !== id))
+    Vue.set(
+      state.history[network],
+      walletId,
+      state.history[network][walletId].filter(i => i.id !== id)
+    )
   },
   UPDATE_BALANCE (state, { network, accountId, walletId, asset, balance }) {
     const accounts = state.accounts[walletId][network]
     if (accounts) {
-      const index = accounts.findIndex(
-        (a) => a.id === accountId
-      )
+      const index = accounts.findIndex(a => a.id === accountId)
 
       if (index >= 0) {
         const _account = accounts[index]
@@ -119,14 +121,16 @@ export default {
   },
   DISABLE_ASSETS (state, { network, walletId, assets }) {
     ensureNetworkWalletTree(state.enabledAssets, network, walletId, [])
-    Vue.set(state.enabledAssets[network], walletId, state.enabledAssets[network][walletId].filter(asset => !assets.includes(asset)))
+    Vue.set(
+      state.enabledAssets[network],
+      walletId,
+      state.enabledAssets[network][walletId].filter(asset => !assets.includes(asset))
+    )
   },
   DISABLE_ACCOUNT_ASSETS (state, { network, walletId, accountId, assets }) {
     const accounts = state.accounts[walletId][network]
     if (accounts) {
-      const index = accounts.findIndex(
-        (a) => a.id === accountId
-      )
+      const index = accounts.findIndex(a => a.id === accountId)
 
       if (index >= 0) {
         const _account = accounts[index]
@@ -144,14 +148,16 @@ export default {
         Vue.set(state.accounts[walletId][network], index, updatedAccount)
       }
     }
-    Vue.set(state.enabledAssets[network], walletId, state.enabledAssets[network][walletId].filter(asset => !assets.includes(asset)))
+    Vue.set(
+      state.enabledAssets[network],
+      walletId,
+      state.enabledAssets[network][walletId].filter(asset => !assets.includes(asset))
+    )
   },
   ENABLE_ACCOUNT_ASSETS (state, { network, walletId, accountId, assets }) {
     const accounts = state.accounts[walletId][network]
     if (accounts) {
-      const index = accounts.findIndex(
-        (a) => a.id === accountId
-      )
+      const index = accounts.findIndex(a => a.id === accountId)
 
       if (index >= 0) {
         const _account = accounts[index]
@@ -183,19 +189,10 @@ export default {
     state.accounts[walletId][network].push(account)
   },
   UPDATE_ACCOUNT (state, { network, walletId, account }) {
-    const {
-      id,
-      name,
-      addresses,
-      assets,
-      balances,
-      updatedAt
-    } = account
+    const { id, name, addresses, assets, balances, updatedAt } = account
     const accounts = state.accounts[walletId][network]
     if (accounts) {
-      const index = accounts.findIndex(
-        (a) => a.id === id
-      )
+      const index = accounts.findIndex(a => a.id === id)
 
       if (index >= 0) {
         const _account = accounts[index]
@@ -216,9 +213,7 @@ export default {
     const accounts = state.accounts[walletId][network]
 
     if (accounts) {
-      const index = accounts.findIndex(
-        (account) => account.id === id
-      )
+      const index = accounts.findIndex(account => account.id === id)
       if (index >= 0) {
         const updatedAccounts = accounts.splice(index, 1)
         Vue.set(state.accounts[walletId], network, [...updatedAccounts])
@@ -228,9 +223,7 @@ export default {
   UPDATE_ACCOUNT_ADDRESSES (state, { network, accountId, walletId, asset, addresses }) {
     const accounts = state.accounts[walletId][network]
     if (accounts) {
-      const index = accounts.findIndex(
-        (a) => a.id === accountId
-      )
+      const index = accounts.findIndex(a => a.id === accountId)
 
       if (index >= 0) {
         const _account = accounts[index]
@@ -263,5 +256,14 @@ export default {
       ...state.analytics,
       ...payload
     }
+  },
+  SAVE_CREDENTIAL (state, { uniqueVerifiableCredential }) {
+    const credentials = state.credentials
+    const credential = credentials.find(vc => vc.id === uniqueVerifiableCredential.id)
+    if (credential) return
+    state.credentials.push(uniqueVerifiableCredential)
+  },
+  DELETE_ALL_CREDENTIALS (state) {
+    state.credentials = []
   }
 }

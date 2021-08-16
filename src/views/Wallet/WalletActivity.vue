@@ -1,14 +1,15 @@
 <template>
-   <div class="wallet-activity">
-       <ActivityFilter @filters-changed="applyFilters"
-                       :activity-data="activityData"
-                       v-if="activityData.length > 0"/>
-       <TransactionList :transactions="activityData" />
-       <div class="activity-empty"
-            v-if="activityData.length <= 0">
-         Once you start using your wallet you will see the activity here
-       </div>
-   </div>
+  <div class="wallet-activity">
+    <ActivityFilter
+      @filters-changed="applyFilters"
+      :activity-data="activityData"
+      v-if="activityData.length > 0"
+    />
+    <TransactionList :transactions="activityData" />
+    <div class="activity-empty" v-if="activityData.length <= 0">
+      Once you start using your wallet you will see the activity here
+    </div>
+  </div>
 </template>
 
 <script>
@@ -29,9 +30,7 @@ export default {
   },
   computed: {
     ...mapGetters(['activity']),
-    ...mapState([
-      'activeNetwork'
-    ])
+    ...mapState(['activeNetwork'])
   },
   methods: {
     applyFilters (filters) {
@@ -49,6 +48,4 @@ export default {
 }
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

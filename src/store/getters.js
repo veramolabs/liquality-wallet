@@ -1,5 +1,6 @@
 import { assets as cryptoassets, unitToCurrency } from '@liquality/cryptoassets'
 import { createClient } from './factory/client'
+import { createAgent } from './factory/agent'
 import { createSwapProvider } from './factory/swapProvider'
 import { Object } from 'core-js'
 import BN from 'bignumber.js'
@@ -7,42 +8,32 @@ import { cryptoToFiat } from '@/utils/coinFormatter'
 
 const clientCache = {}
 const swapProviderCache = {}
+const agentCache = {}
 
 const TESTNET_CONTRACT_ADDRESSES = {
   DAI: '0xad6d458402f60fd3bd25163575031acdce07538d',
   SOV: '0x6a9A07972D07E58f0daF5122D11e069288A375fB',
   PWETH: '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa'
 }
-const TESTNET_ASSETS = ['BTC', 'ETH', 'RBTC', 'DAI', 'BNB', 'SOV', 'NEAR', 'MATIC', 'PWETH', 'ARBETH'].reduce((assets, asset) => {
-  return Object.assign(assets, {
-    [asset]: {
-      ...cryptoassets[asset],
-      contractAddress: TESTNET_CONTRACT_ADDRESSES[asset]
-    }
-  })
-}, {})
+const TESTNET_ASSETS = ['BTC', 'ETH', 'RBTC', 'DAI', 'BNB', 'SOV', 'NEAR', 'MATIC', 'PWETH', 'ARBETH'].reduce(
+  (assets, asset) => {
+    return Object.assign(assets, {
+      [asset]: {
+        ...cryptoassets[asset],
+        contractAddress: TESTNET_CONTRACT_ADDRESSES[asset]
+      }
+    })
+  },
+  {}
+)
 
 export default {
   client (state, getters) {
-    return ({
-      network,
-      walletId,
-      asset,
-      accountId,
-      useCache = true,
-      walletType = 'default',
-      index = 0
-    }) => {
+    return ({ network, walletId, asset, accountId, useCache = true, walletType = 'default', index = 0 }) => {
       const account = accountId ? getters.accountItem(accountId) : null
       const accountType = account?.type || walletType
       const accountIndex = account?.index || index
-      const cacheKey = [
-        asset,
-        network,
-        walletId,
-        accountType,
-        accountIndex
-      ].join('-')
+      const cacheKey = [asset, network, walletId, accountType, accountIndex].join('-')
 
       if (useCache) {
         const cachedClient = clientCache[cacheKey]
@@ -54,6 +45,36 @@ export default {
       clientCache[cacheKey] = client
 
       return client
+    }
+  },
+  agent (state) {
+    return ({ useCache = false }) => {
+      const { accounts, activeNetwork, activeWalletId } = state
+      const { mnemonic } = state.wallets.find(w => w.id === activeWalletId)
+      const cacheKey = 'agent-cache-key'
+
+      if (useCache) {
+        const cachedAgent = agentCache[cacheKey]
+        if (cachedAgent) return cachedAgent
+      }
+
+      // Return just the main ethereum account
+      const addresses = accounts[activeWalletId]?.[activeNetwork]
+        .map(acc => {
+          return {
+            chain: acc.chain,
+            address: acc.addresses[0],
+            // Hardcoding ethereum derivation path
+            derivationPath: "m/44'/60'/0'/0/0"
+          }
+        })
+        .filter(address => address.chain === 'ethereum')
+
+      const agent = createAgent(addresses, mnemonic)
+
+      agentCache[cacheKey] = agent
+
+      return agent
     }
   },
   swapProvider (state) {
@@ -114,27 +135,29 @@ export default {
   },
   accountItem (state, getters) {
     const { accountsData } = getters
-    return (accountId) => {
+    return accountId => {
       const account = accountsData.find(a => a.id === accountId)
       return account
     }
   },
   accountsWithBalance (state, getters) {
     const { accountsData } = getters
-    return accountsData.map(account => {
-      const balances = Object.entries(account.balances)
-        .filter(([_, balance]) => BN(balance).gt(0))
-        .reduce((accum, [asset, balance]) => {
-          return {
-            ...accum,
-            [asset]: balance
-          }
-        }, {})
-      return {
-        ...account,
-        balances
-      }
-    }).filter(account => account.balances && Object.keys(account.balances).length > 0)
+    return accountsData
+      .map(account => {
+        const balances = Object.entries(account.balances)
+          .filter(([_, balance]) => BN(balance).gt(0))
+          .reduce((accum, [asset, balance]) => {
+            return {
+              ...accum,
+              [asset]: balance
+            }
+          }, {})
+        return {
+          ...account,
+          balances
+        }
+      })
+      .filter(account => account.balances && Object.keys(account.balances).length > 0)
   },
   accountsData (state, getters) {
     const { accounts, activeNetwork, activeWalletId } = state
@@ -143,20 +166,20 @@ export default {
       .filter(account => account.assets && account.assets.length > 0)
       .map(account => {
         const totalFiatBalance = accountFiatBalance(activeWalletId, activeNetwork, account.id)
-        const fiatBalances = Object.entries(account.balances)
-          .reduce((accum, [asset, balance]) => {
-            const fiat = assetFiatBalance(asset, balance)
-            return {
-              ...accum,
-              [asset]: fiat
-            }
-          }, {})
+        const fiatBalances = Object.entries(account.balances).reduce((accum, [asset, balance]) => {
+          const fiat = assetFiatBalance(asset, balance)
+          return {
+            ...accum,
+            [asset]: fiat
+          }
+        }, {})
         return {
           ...account,
           fiatBalances,
           totalFiatBalance
         }
-      }).sort((a, b) => {
+      })
+      .sort((a, b) => {
         if (a.type.includes('ledger')) {
           return -1
         }
@@ -170,11 +193,10 @@ export default {
     return (walletId, network, accountId) => {
       const account = accounts[walletId]?.[network].find(a => a.id === accountId)
       if (account) {
-        return Object.entries(account.balances)
-          .reduce((accum, [asset, balance]) => {
-            const fiat = assetFiatBalance(asset, balance)
-            return accum.plus(fiat || 0)
-          }, BN(0))
+        return Object.entries(account.balances).reduce((accum, [asset, balance]) => {
+          const fiat = assetFiatBalance(asset, balance)
+          return accum.plus(fiat || 0)
+        }, BN(0))
       }
       return BN(0)
     }

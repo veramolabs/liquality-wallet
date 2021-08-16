@@ -17,6 +17,9 @@ import Settings from '@/views/Settings'
 import ManageAssets from '@/views/ManageAssets'
 import CustomToken from '@/views/CustomToken'
 
+import CreateCredential from '@/views/CreateCredential'
+import Credential from '@/views/Credential'
+
 import RequestUnlockWallet from '@/views/RequestUnlockWallet.vue'
 import Enable from '@/views/Enable.vue'
 import PermissionSend from '@/views/PermissionSend.vue'
@@ -25,6 +28,7 @@ import PermissionSignPsbt from '@/views/PermissionSignPsbt.vue'
 import Permission from '@/views/Permission.vue'
 import WalletAssets from '@/views/Wallet/WalletAssets.vue'
 import WalletActivity from '@/views/Wallet/WalletActivity.vue'
+import WalletCredentials from '@/views/Wallet/WalletCredentials.vue'
 import AssetList from '@/views/AssetList.vue'
 import HardwareWallet from '@/views/Accounts/HardwareWallet/HardwareWallet.vue'
 import CreateAccount from '@/views/Accounts/Create.vue'
@@ -90,11 +94,29 @@ const routes = [
         name: 'WalletActivity'
       },
       {
+        path: 'credentials',
+        component: WalletCredentials,
+        name: 'WalletCredentials'
+      },
+      {
         path: '',
         redirect: 'assets'
       }
     ]
   },
+
+  // Credentials
+  {
+    path: '/credentials/create',
+    component: CreateCredential,
+    name: 'CreateCredential'
+  },
+  {
+    path: '/credentials/:id',
+    component: Credential,
+    name: 'Credential'
+  },
+
   // Details
   {
     path: '/details/swap/:id',
@@ -198,7 +220,6 @@ const routes = [
     path: '/seedreveal',
     component: PhraseReveal
   }
-
 ]
 
 const router = new VueRouter({
